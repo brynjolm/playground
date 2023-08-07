@@ -39,13 +39,14 @@ post_status $? "Package installation"
 echo "nameserver 192.168.200.1" > /etc/resolv.conf
 post_status $? "Updating /etc/resolv.conf"
 
-# Set timesyncd to use NTP server
+# Set timesyncd to use NTP server and Europe/Berlin timezone
 echo "NTP=192.168.200.1" >> /etc/systemd/timesyncd.conf
+timedatectl set-timezone Europe/Berlin
+post_status $? "timesyncd configuration"
 
 # Enable and start timesyncd service
 systemctl enable systemd-timesyncd
 systemctl start systemd-timesyncd
-post_status $? "timesyncd configuration"
 
 # Reboot the server
 echo "Rebooting the system..."
