@@ -35,6 +35,11 @@ post_status $? "Package upgrade"
 apt install -y nano git qemu-guest-agent wget curl samba nfs-kernel-server cifs-utils ca-certificates gnupg
 post_status $? "Package installation"
 
+# Remove domain and search sections from /etc/resolv.conf
+sed -i '/^domain/d' /etc/resolv.conf
+sed -i '/^search/d' /etc/resolv.conf
+post_status $? "Removing domain and search from /etc/resolv.conf"
+
 # Set /etc/resolv.conf to have a nameserver of 192.168.200.1
 echo "nameserver 192.168.200.1" > /etc/resolv.conf
 post_status $? "Updating /etc/resolv.conf"
