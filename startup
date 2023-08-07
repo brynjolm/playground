@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Function to post status
+post_status() {
+    if [ $1 -eq 0 ]; then
+        echo "Success: $2"
+    else
+        echo "Failure: $2"
+    fi
+}
+
+# Get the DHCP hostname
+dhcp_hostname=$(cat /etc/hostname)
+
+# Set the DHCP hostname as the system hostname
+hostnamectl set-hostname "$dhcp_hostname"
+post_status $? "Setting hostname to $dhcp_hostname"
+
+# Delete SSH host keys
+rm -v /etc/ssh/ssh_host_*
+
+# Reconfigure openssh-server
+dpkg-reconfigure openssh-server
+post_status $? "openssh-server configuration"
+
+# Update package list
+apt update
+post_status $? "Package list update"
+
+# Upgrade packages
+apt upgrade -y
+post_status $? "Package upgrade"
+
+# Install required packages
+apt install -y nano git qemu-guest-agent wget curl samba nfs-kernel-server cifs-utils ca-certificates gnupg
+post_status $? "Package installation"
+
+# Set /etc/resolv.conf to have a nameserver of 192.168.200.1
+echo "nameserver 192.168.200.1" > /etc/resolv.conf
+post_status $? "Updating /etc/resolv.conf"
+
+# Set timesyncd to use NTP server
+echo "NTP=192.168.200.1" >> /etc/systemd/timesyncd.conf
+
+# Enable and start timesyncd service
+systemctl enable systemd-timesyncd
+systemctl start systemd-timesyncd
+post_status $? "timesyncd configuration"
+
+# Reboot the server
+echo "Rebooting the system..."
+reboot
