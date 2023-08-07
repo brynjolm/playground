@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: rancher-service
   annotations:
-    metallb.universe.tf/allow-shared-ip: rancher-pool
+    metallb.universe.tf/allow-shared-ip: home
 spec:
   selector:
     app: rancher
