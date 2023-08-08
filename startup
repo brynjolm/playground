@@ -10,12 +10,18 @@ post_status() {
 }
 
 # Get DHCP hostname from DHCP lease file
-dhcp_hostname=$(grep -oP '(?<=host-name ").*(?=";)' /var/lib/dhcp/dhclient.leases | tail -1)
+dhcp_hostname=$(grep -oP '(?<=host-name ").*(?=";)' /var/lib/dhcp/dhclient.ens18.leases | tail -1)
 
 # Set the DHCP hostname as the system hostname
 if [ -n "$dhcp_hostname" ]; then
     hostnamectl set-hostname "$dhcp_hostname"
     post_status $? "Setting hostname to $dhcp_hostname"
+    # Update /etc/hostname
+    echo "$dhcp_hostname" > /etc/hostname
+    post_status $? "Updating /etc/hostname"
+    # Update /etc/hosts
+    sed -i "s/127.0.1.1.*/127.0.1.1 $dhcp_hostname/g" /etc/hosts
+    post_status $? "Updating /etc/hosts"
 else
     echo "Could not determine DHCP-configured hostname."
 fi
