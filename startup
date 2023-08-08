@@ -55,29 +55,6 @@ post_status $? "timesyncd configuration"
 systemctl enable systemd-timesyncd
 systemctl start systemd-timesyncd
 
-# Restart networking using NetworkManager to regenerate /etc/hosts
-nmcli networking off
-nmcli networking on
-post_status $? "Restarting networking service to regenerate /etc/hosts using NetworkManager"
-
-# Set the DHCP hostname as the system hostname
-hostnamectl set-hostname "$HOSTNAME"
-post_status $? "Setting hostname to $HOSTNAME"
-
-# Recreate /etc/hostname with the DHCP hostname
-echo "$HOSTNAME" > /etc/hostname
-post_status $? "Creating /etc/hostname"
-
-# Recreate /etc/hosts with necessary entries
-cat <<EOF > /etc/hosts
-127.0.0.1 localhost $HOSTNAME
-# The following lines are desirable for IPv6 capable hosts
-::1 localhost ip6-localhost ip6-loopback
-ff02::1 ip6-allnodes
-ff02::2 ip6-allrouters
-EOF
-post_status $? "Creating /etc/hosts"
-
 # Reboot the server
 echo "Rebooting the system..."
 reboot
