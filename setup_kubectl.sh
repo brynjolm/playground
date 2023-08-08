@@ -30,7 +30,7 @@ for server_ip in "${target_servers[@]}"; do
 done
 
 # Copy k3s.yaml from remote machine
-scp root@192.168.200.100:/etc/rancher/k3s/k3s.yaml ~/.kube/config
+sudo scp nick@192.168.200.100:/etc/rancher/k3s/k3s.yaml ~/.kube/config
 
 # Set KUBECONFIG environment variable
 export KUBECONFIG=~/.kube/config
