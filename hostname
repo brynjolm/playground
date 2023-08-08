@@ -9,6 +9,14 @@ post_status() {
     fi
 }
 
+# Update package list
+apt update
+post_status $? "Package list update"
+
+# Upgrade packages
+apt upgrade -y
+post_status $? "Package upgrade"
+
 # Set the DHCP hostname as the system hostname
 hostnamectl set-hostname "$HOSTNAME"
 post_status $? "Setting hostname to $HOSTNAME"
