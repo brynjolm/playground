@@ -9,12 +9,16 @@ post_status() {
     fi
 }
 
-# Get the DHCP hostname
-dhcp_hostname=$(cat /etc/hostname)
+# Get DHCP hostname from DHCP lease file
+dhcp_hostname=$(grep -w 'host-name' /var/lib/dhcp/dhclient.leases | tail -1 | cut -d '"' -f 2)
 
 # Set the DHCP hostname as the system hostname
-hostnamectl set-hostname "$dhcp_hostname"
-post_status $? "Setting hostname to $dhcp_hostname"
+if [ -n "$dhcp_hostname" ]; then
+    hostnamectl set-hostname "$dhcp_hostname"
+    post_status $? "Setting hostname to $dhcp_hostname"
+else
+    echo "Could not determine DHCP-configured hostname."
+fi
 
 # Delete SSH host keys
 rm -v /etc/ssh/ssh_host_*
