@@ -21,7 +21,7 @@ target_servers=("192.168.200.10" "192.168.200.11" "192.168.200.12" "192.168.200.
 
 # Loop through target servers and copy SSH public key
 for server_ip in "${target_servers[@]}"; do
-    ssh-copy-id -i ~/.ssh/id_ed25519.pub root@"$server_ip"
+    ssh-copy-id -i ~/.ssh/id_ed25519.pub nick@"$server_ip"
     if [ $? -eq 0 ]; then
         echo "SSH key copied to $server_ip successfully."
     else
