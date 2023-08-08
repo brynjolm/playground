@@ -31,7 +31,7 @@ apt upgrade -y
 post_status $? "Package upgrade"
 
 # Install required packages
-apt install -y nano git qemu-guest-agent wget curl samba nfs-kernel-server cifs-utils ca-certificates gnupg network-manager
+apt install -y nano git qemu-guest-agent wget curl samba nfs-kernel-server cifs-utils ca-certificates gnupg
 post_status $? "Package installation"
 
 # Pause to allow NetworkManager to apply its configuration
