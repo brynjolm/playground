@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Function to post status
+post_status() {
+    if [ $1 -eq 0 ]; then
+        echo "Success: $2"
+    else
+        echo "Failure: $2"
+    fi
+}
+
+# Set the DHCP hostname as the system hostname
+hostnamectl set-hostname "$HOSTNAME"
+post_status $? "Setting hostname to $HOSTNAME"
+
+# Recreate /etc/hostname with the DHCP hostname
+echo "$HOSTNAME" > /etc/hostname
+post_status $? "Creating /etc/hostname"
+
+# Recreate /etc/hosts with necessary entries
+cat <<EOF > /etc/hosts
+127.0.0.1 localhost $HOSTNAME
+# The following lines are desirable for IPv6 capable hosts
+::1 localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+EOF
+post_status $? "Creating /etc/hosts"
+
+# Reboot the server
+echo "Rebooting the system..."
+reboot
