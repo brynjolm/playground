@@ -1,7 +1,7 @@
 apiVersion: cilium.io/v2alpha1
 kind: CiliumLoadBalancerIPPool
 metadata:
-  name: my-ip-pool
+  name: local
 spec:
   cidrs:
-    - cidr: "192.168.200.150/28"   # Define your IP range here
+    - cidr: "192.168.200.128/25"
