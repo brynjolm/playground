@@ -9,8 +9,8 @@ post_status() {
     fi
 }
 
-# Get DHCP hostname from DHCP lease file
-dhcp_hostname=$(grep -w 'host-name' /var/lib/dhcp/dhclient.leases | tail -1 | cut -d '"' -f 2)
+# Get DHCP hostname from DHCP client environment variables
+dhcp_hostname=$(hostname -s)
 
 # Set the DHCP hostname as the system hostname
 if [ -n "$dhcp_hostname" ]; then
