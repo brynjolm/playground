@@ -17,7 +17,7 @@ fi
 ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N ""
 
 # List of target server IPs
-target_servers=("192.168.200.10" "192.168.200.11" "192.168.200.12")
+target_servers=("192.168.200.10" "192.168.200.11" "192.168.200.12" "192.168.200.13")
 
 # Loop through target servers and copy SSH public key
 for server_ip in "${target_servers[@]}"; do
