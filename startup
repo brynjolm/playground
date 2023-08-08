@@ -9,7 +9,7 @@ post_status() {
     fi
 }
 
-# Delete /etc/hostname and /etc/hosts to allow DHCP to repopulate them
+# Delete /etc/hostname and /etc/hosts to allow recreation
 rm -f /etc/hostname
 post_status $? "Deleting /etc/hostname"
 rm -f /etc/hosts
@@ -31,8 +31,11 @@ apt upgrade -y
 post_status $? "Package upgrade"
 
 # Install required packages
-apt install -y nano git qemu-guest-agent wget curl samba nfs-kernel-server cifs-utils ca-certificates gnupg
+apt install -y nano git qemu-guest-agent wget curl samba nfs-kernel-server cifs-utils ca-certificates gnupg network-manager
 post_status $? "Package installation"
+
+# Pause to allow NetworkManager to apply its configuration
+sleep 5
 
 # Remove domain and search sections from /etc/resolv.conf
 sed -i '/^domain/d' /etc/resolv.conf
@@ -51,6 +54,29 @@ post_status $? "timesyncd configuration"
 # Enable and start timesyncd service
 systemctl enable systemd-timesyncd
 systemctl start systemd-timesyncd
+
+# Restart networking using NetworkManager to regenerate /etc/hosts
+nmcli networking off
+nmcli networking on
+post_status $? "Restarting networking service to regenerate /etc/hosts using NetworkManager"
+
+# Set the DHCP hostname as the system hostname
+hostnamectl set-hostname "$HOSTNAME"
+post_status $? "Setting hostname to $HOSTNAME"
+
+# Recreate /etc/hostname with the DHCP hostname
+echo "$HOSTNAME" > /etc/hostname
+post_status $? "Creating /etc/hostname"
+
+# Recreate /etc/hosts with necessary entries
+cat <<EOF > /etc/hosts
+127.0.0.1 localhost $HOSTNAME
+# The following lines are desirable for IPv6 capable hosts
+::1 localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+EOF
+post_status $? "Creating /etc/hosts"
 
 # Reboot the server
 echo "Rebooting the system..."
