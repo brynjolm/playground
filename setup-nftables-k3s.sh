@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Update package list
+apt update
+post_status $? "Package list update"
+
+# Upgrade packages
+apt upgrade -y
+post_status $? "Package upgrade"
+
 # Step 1: Create nftables configuration file
 cat <<EOF >/etc/nftables-k3s.conf
 #!/usr/sbin/nft -f
