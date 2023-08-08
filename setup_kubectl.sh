@@ -36,7 +36,7 @@ mkdir -p ~/.kube
 export KUBECONFIG=~/.kube/config
 
 # Copy k3s.yaml from remote machine
-scp nick@192.168.200.100:/etc/rancher/k3s/k3s.yaml ~/.kube/config
+scp nick@192.168.200.10:/etc/rancher/k3s/k3s.yaml ~/.kube/config
 
 # Update k3s master node IP in k3s.yaml
 sed -i "s/server:.*/server: https:\/\/192.168.200.100:6443/g" ~/.kube/config
