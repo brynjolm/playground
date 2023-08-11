@@ -10,10 +10,10 @@ spec:
   template:
     metadata:
       labels:
-        run: my-nginx
+        run: nginx
     spec:
       containers:
-      - name: my-nginx
+      - name: nginx
         image: nginx
         ports:
         - containerPort: 80
