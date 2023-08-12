@@ -10,10 +10,10 @@ spec:
   template:
     metadata:
       labels:
-        run: my-nginx
+        run: nginx
     spec:
       containers:
-      - name: my-nginx
+      - name: nginx
         image: nginx
         ports:
         - containerPort: 80
@@ -24,7 +24,7 @@ metadata:
   name: nginx-ingress
 spec:
   rules:
-    - host: nginx-hello.example.com
+    - host: nginx.example.com
       http:
         paths:
           - path: /
