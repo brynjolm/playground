@@ -17,7 +17,7 @@ spec:
                   number: 443
   defaultBackend:
     service:
-      name: cilium-default-backend
+      name: cilium-ingress
       port:
         number: 80
   ingressClassName: cilium
