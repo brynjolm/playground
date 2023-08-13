@@ -15,16 +15,10 @@ cat <<EOF >/etc/nftables-k3s.conf
 table inet filter {
     chain input {
         type filter hook input priority 0; policy accept;
-
-        ct state established,related accept
-        iifname "lo" accept
-        tcp dport 22 accept
-        tcp dport 6443 accept
-        accept
     }
 
     chain forward {
-        type filter hook forward priority 0; policy drop;
+        type filter hook forward priority 0; policy accept;
     }
 
     chain output {
