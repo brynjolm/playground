@@ -17,7 +17,7 @@ fi
 ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N ""
 
 # List of target server IPs
-target_servers=("192.168.200.10" "192.168.200.11" "192.168.200.12" "192.168.200.13")
+target_servers=("192.200.0.100" "192.200.0.101" "192.200.0.102" "192.200.0.103")
 
 # Loop through target servers and copy SSH public key
 for server_ip in "${target_servers[@]}"; do
@@ -33,12 +33,12 @@ done
 mkdir -p ~/.kube
 
 # Copy k3s.yaml from remote machine
-scp nick@192.168.200.10:/etc/rancher/k3s/k3s.yaml ~/.kube/config
+scp nick@192.200.0.100:/etc/rancher/k3s/k3s.yaml ~/.kube/config
 
 # Set KUBECONFIG environment variable
 export KUBECONFIG=~/.kube/config
 
 # Update k3s master node IP in k3s.yaml
-sed -i "s/server:.*/server: https:\/\/192.168.200.100:6443/g" ~/.kube/config
+sed -i "s/server:.*/server: https:\/\/192.200.0.80:6443/g" ~/.kube/config
 
 echo "Setup completed."
