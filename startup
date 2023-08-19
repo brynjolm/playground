@@ -31,7 +31,7 @@ apt upgrade -y
 post_status $? "Package upgrade"
 
 # Install required packages
-apt install -y nano git qemu-guest-agent wget curl samba nfs-kernel-server cifs-utils ca-certificates gnupg open-iscsi jq
+apt install -y nano git qemu-guest-agent wget curl samba nfs-kernel-server cifs-utils ca-certificates gnupg open-iscsi jq chrony
 post_status $? "Package installation"
 
 # Pause to allow NetworkManager to apply its configuration
@@ -46,14 +46,38 @@ post_status $? "Removing domain and search from /etc/resolv.conf"
 echo "nameserver 192.168.200.1" > /etc/resolv.conf
 post_status $? "Updating /etc/resolv.conf"
 
-# Set timesyncd to use NTP server and Europe/Berlin timezone
-echo "NTP=192.168.200.1" >> /etc/systemd/timesyncd.conf
-timedatectl set-timezone Europe/Berlin
-post_status $? "timesyncd configuration"
+# Configure Chrony to use only one NTP server
+echo "server 192.200.0.1 iburst" > /etc/chrony/chrony.conf
 
-# Enable and start timesyncd service
-systemctl enable systemd-timesyncd
-systemctl start systemd-timesyncd
+# Enable and start Chrony service
+systemctl enable chronyd
+systemctl start chronyd
+post_status $? "Chrony service"
+
+# Set timezone to Europe/Berlin within chrony.conf
+echo "timezone Europe/Berlin" >> /etc/chrony/chrony.conf
+
+# Restart Chrony to apply the timezone change
+systemctl restart chronyd
+post_status $? "Timezone configuration"
+
+# Disable and uninstall systemd-timesyncd (timedatectl)
+systemctl stop systemd-timesyncd
+systemctl disable systemd-timesyncd
+apt-get remove systemd-timesyncd -y  # Use the appropriate package manager command for your distribution
+post_status $? "Disable and uninstall systemd-timesyncd"
+
+# Define the post_status function
+post_status() {
+    if [ $1 -eq 0 ]; then
+        echo "$2 configured successfully."
+    else
+        echo "Error configuring $2."
+        exit 1
+    fi
+}
+# Another pause to see if results ok
+sleep 10
 
 # Reboot the server
 echo "Rebooting the system..."
