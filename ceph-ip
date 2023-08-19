@@ -9,16 +9,15 @@ post_status() {
     fi
 }
 
-# Find an available IP address within the range for ens18
-base_ip="192.200.0.1"
-ip_range_start=100
-ip_range_end=250
-for ((i = ip_range_start; i <= ip_range_end; i++)); do
-    ip="$base_ip.$i"
-    if is_ip_available "$ip"; then
-        break
+# Function to check if an IP address is available
+is_ip_available() {
+    local ip="$1"
+    if ! ping -c 1 -W 1 "$ip" > /dev/null 2>&1; then
+        return 0  # IP is available
+    else
+        return 1  # IP is not available
     fi
-done
+}
 
 if [ "$i" -le "$ip_range_end" ]; then
     # Configure ens18 with static IP
