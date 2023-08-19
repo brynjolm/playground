@@ -42,8 +42,8 @@ sed -i '/^domain/d' /etc/resolv.conf
 sed -i '/^search/d' /etc/resolv.conf
 post_status $? "Removing domain and search from /etc/resolv.conf"
 
-# Set /etc/resolv.conf to have a nameserver of 192.200.0.1
-echo "nameserver 192.200.0.1" > /etc/resolv.conf
+# Set /etc/resolv.conf to have multiple nameservers
+echo -e "nameserver 192.200.0.1\nnameserver 172.200.0.1" > /etc/resolv.conf
 post_status $? "Updating /etc/resolv.conf"
 
 # Backup the original chrony.conf file
