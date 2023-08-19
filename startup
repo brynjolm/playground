@@ -66,16 +66,6 @@ post_status $? "Uninstall systemd-timesyncd"
 # Another pause to see if results ok
 sleep 10
 
-# Modify /etc/network/interfaces for static IP on ens19
-echo "
-# Configured by script
-auto ens19
-iface ens19 inet static
-    address 172.200.0.10
-    netmask 255.255.0.0
-    gateway 172.200.0.1
-" >> /etc/network/interfaces
-
 # Reboot the server
 echo "Rebooting the system..."
 reboot
