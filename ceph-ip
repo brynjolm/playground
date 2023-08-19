@@ -22,8 +22,11 @@ post_status() {
 # Backup the original /etc/network/interfaces file
 cp /etc/network/interfaces /etc/network/interfaces_backup
 
-# Create /etc/network/interfaces_tmp with initial configuration
-cat > /etc/network/interfaces_tmp << EOF
+# Create a backup of the original interfaces file
+cp /etc/network/interfaces /etc/network/interfaces_backup
+
+# Create a new interfaces_tmp file with initial contents
+cat << EOF > /etc/network/interfaces_tmp
 # This file describes the network interfaces available on your system
 # and how to activate them. For more information, see interfaces(5).
 
@@ -32,10 +35,6 @@ source /etc/network/interfaces.d/*
 # The loopback network interface
 auto lo
 iface lo inet loopback
-
-# The primary network interface
-allow-hotplug ens18
-iface ens18 inet dhcp
 EOF
 
 # Find an available IP address within the range for ens18
@@ -51,20 +50,18 @@ done
 
 if [ "$i" -le "$ip_range_end" ]; then
     # Append ens18 configuration to interfaces_tmp
-    echo "
-    # Configured by script
-    auto ens18
-    iface ens18 inet static
-        address $ip
-        netmask 255.255.0.0
-        gateway 192.200.0.1
-    " >> /etc/network/interfaces_tmp
+    echo "# Configured by script" >> /etc/network/interfaces_tmp
+    echo "auto ens18" >> /etc/network/interfaces_tmp
+    echo "iface ens18 inet static" >> /etc/network/interfaces_tmp
+    echo "    address $ip" >> /etc/network/interfaces_tmp
+    echo "    netmask 255.255.0.0" >> /etc/network/interfaces_tmp
+    echo "    gateway 192.200.0.1" >> /etc/network/interfaces_tmp
     post_status $? "Configured ens18 with IP $ip"
 else
     post_status 1 "No available IP found in range $base_ip.$ip_range_start - $base_ip.$ip_range_end"
 fi
 
-# Find an available IP address within the range
+# Find an available IP address within the range for ens19
 base_ip="172.200.0"
 ip_range_start=10
 ip_range_end=200
@@ -76,22 +73,23 @@ for ((i = ip_range_start; i <= ip_range_end; i++)); do
 done
 
 if [ "$i" -le "$ip_range_end" ]; then
-    # Modify /etc/network/interfaces for static IP on ens19
-    echo "
-    # Configured by script
-    auto ens19
-    iface ens19 inet static
-        address $ip
-        netmask 255.255.0.0
-        gateway 172.200.0.1
-    " >> /etc/network/interfaces
+    # Append ens19 configuration to interfaces_tmp
+    echo "# Configured by script" >> /etc/network/interfaces_tmp
+    echo "auto ens19" >> /etc/network/interfaces_tmp
+    echo "iface ens19 inet static" >> /etc/network/interfaces_tmp
+    echo "    address $ip" >> /etc/network/interfaces_tmp
+    echo "    netmask 255.255.0.0" >> /etc/network/interfaces_tmp
+    echo "    gateway 172.200.0.1" >> /etc/network/interfaces_tmp
     post_status $? "Configured ens19 with IP $ip"
 else
     post_status 1 "No available IP found in range $base_ip.$ip_range_start - $base_ip.$ip_range_end"
 fi
 
-# Overwrite /etc/network/interfaces with interfaces_tmp
+# Replace /etc/network/interfaces with the modified configuration
 cp /etc/network/interfaces_tmp /etc/network/interfaces
+
+# Clean up temporary files
+rm /etc/network/interfaces_tmp
 
 # Check the current default route
 current_default_route=$(ip route show default | awk '/default/ {print $3}')
