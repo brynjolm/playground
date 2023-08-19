@@ -46,6 +46,12 @@ post_status $? "Removing domain and search from /etc/resolv.conf"
 echo "nameserver 192.200.0.1" > /etc/resolv.conf
 post_status $? "Updating /etc/resolv.conf"
 
+# Backup the original chrony.conf file
+cp /etc/chrony/chrony.conf /etc/chrony/chrony.conf.backup
+
+# Comment out the line with the pool directive
+sed -i 's/^pool 2.debian.pool.ntp.org iburst/#pool 2.debian.pool.ntp.org iburst/' /etc/chrony/chrony.conf
+
 # Configure Chrony to use only one NTP server
 echo "server 192.200.0.1 iburst" >> /etc/chrony/chrony.conf
 
