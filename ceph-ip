@@ -9,7 +9,31 @@ post_status() {
     fi
 }
 
-# ... (rest of your script)
+# Find an available IP address within the range for ens18
+base_ip="192.200.0.1"
+ip_range_start=100
+ip_range_end=250
+for ((i = ip_range_start; i <= ip_range_end; i++)); do
+    ip="$base_ip.$i"
+    if is_ip_available "$ip"; then
+        break
+    fi
+done
+
+if [ "$i" -le "$ip_range_end" ]; then
+    # Configure ens18 with static IP
+    echo "
+    # Configured by script
+    auto ens18
+    iface ens18 inet static
+        address $ip
+        netmask 255.255.0.0
+        gateway 192.200.0.1
+    " >> /etc/network/interfaces
+    post_status $? "Configured ens18 with IP $ip"
+else
+    post_status 1 "No available IP found in range $base_ip.$ip_range_start - $base_ip.$ip_range_end"
+fi
 
 # Function to check if an IP address is available
 is_ip_available() {
@@ -45,4 +69,16 @@ if [ "$i" -le "$ip_range_end" ]; then
     post_status $? "Configured ens19 with IP $ip"
 else
     post_status 1 "No available IP found in range $base_ip.$ip_range_start - $base_ip.$ip_range_end"
+fi
+
+# Check the current default route
+current_default_route=$(ip route show default | awk '/default/ {print $3}')
+
+# If the current default route is not 192.200.0.1, update it
+if [ "$current_default_route" != "192.200.0.1" ]; then
+    # Delete the existing default route
+    ip route del default
+    
+    # Set default route to 192.200.0.1
+    ip route add default via 192.200.0.1
 fi
