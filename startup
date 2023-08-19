@@ -71,6 +71,15 @@ post_status $? "Uninstall systemd-timesyncd"
 # Another pause to see if results ok
 sleep 10
 
+# Delete the incorrect default route
+ip route del default via 172.200.0.1 dev ens19
+
+# Add the correct default route for ens18
+ip route add default via 192.200.1.1 dev ens18
+
+# Update the routing table
+ip route flush cache
+
 # Reboot the server
 echo "Rebooting the system..."
 reboot
