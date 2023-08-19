@@ -36,7 +36,7 @@ post_status $? "Package upgrade"
 apt install -y nano git qemu-guest-agent wget curl samba nfs-kernel-server cifs-utils ca-certificates gnupg open-iscsi jq chrony
 post_status $? "Package installation"
 
-# Pause to allow NetworkManager to apply its configuration
+# Pause to allow install
 sleep 15
 
 # Set /etc/resolv.conf to have multiple nameservers
