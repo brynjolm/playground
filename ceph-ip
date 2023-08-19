@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Function to post status
+post_status() {
+    if [ $1 -eq 0 ]; then
+        echo "Success: $2"
+    else
+        echo "Failure: $2"
+    fi
+}
+
+# ... (rest of your script)
+
+# Function to check if an IP address is available
+is_ip_available() {
+    local ip="$1"
+    if ! ping -c 1 -W 1 "$ip" > /dev/null 2>&1; then
+        return 0  # IP is available
+    else
+        return 1  # IP is not available
+    fi
+}
+
+# Find an available IP address within the range
+base_ip="172.200.0"
+ip_range_start=10
+ip_range_end=200
+for ((i = ip_range_start; i <= ip_range_end; i++)); do
+    ip="$base_ip.$i"
+    if is_ip_available "$ip"; then
+        break
+    fi
+done
+
+if [ "$i" -le "$ip_range_end" ]; then
+    # Modify /etc/network/interfaces for static IP on ens19
+    echo "
+    # Configured by script
+    auto ens19
+    iface ens19 inet static
+        address $ip
+        netmask 255.255.0.0
+        gateway 172.200.0.1
+    " >> /etc/network/interfaces
+    post_status $? "Configured ens19 with IP $ip"
+else
+    post_status 1 "No available IP found in range $base_ip.$ip_range_start - $base_ip.$ip_range_end"
+fi
