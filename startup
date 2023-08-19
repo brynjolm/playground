@@ -48,19 +48,17 @@ post_status $? "Updating /etc/resolv.conf"
 # Backup the original chrony.conf file
 cp /etc/chrony/chrony.conf /etc/chrony/chrony.conf.backup
 
-# Comment out the line with the pool directive
-sed -i 's/^pool 2.debian.pool.ntp.org iburst/#pool 2.debian.pool.ntp.org iburst/' /etc/chrony/chrony.conf
-
-# Configure Chrony to use only one NTP server
-echo "server 192.200.0.1 iburst" >> /etc/chrony/chrony.conf
+# Replace the line with the pool directive with the server directive
+sed -i 's/^pool 2.debian.pool.ntp.org iburst/server 192.200.0.1 iburst/' /etc/chrony/chrony.conf
+post_status $? "Updating chrony.conf"
 
 # Enable and start Chrony service (use the appropriate service name for your system)
 systemctl enable chrony
 systemctl start chrony
 post_status $? "Chrony service"
 
-# Set timezone to Europe/Berlin within chrony.conf
-echo "rtctimerange 0 1 Europe/Berlin" >> /etc/chrony/chrony.conf
+# Set timezone using timedatectl
+timedatectl set-timezone Europe/Berlin
 post_status $? "Timezone configuration"
 
 # Uninstall and clean up systemd-timesyncd
