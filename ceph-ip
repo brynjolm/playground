@@ -99,8 +99,7 @@ current_default_route=$(ip route show default | awk '/default/ {print $3}')
 # If the current default route is not 192.200.0.1, update it
 if [ "$current_default_route" != "192.200.0.1" ]; then
     # Delete the existing default route
-    ip route del default
-    
+    ip route del default 
     # Set default route to 192.200.0.1
     ip route add default via 192.200.0.1
 fi
