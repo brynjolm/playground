@@ -19,6 +19,25 @@ post_status() {
     fi
 }
 
+# Backup the original /etc/network/interfaces file
+cp /etc/network/interfaces /etc/network/interfaces_backup
+
+# Create /etc/network/interfaces_tmp with initial configuration
+cat > /etc/network/interfaces_tmp << EOF
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+allow-hotplug ens18
+iface ens18 inet dhcp
+EOF
+
 # Find an available IP address within the range for ens18
 base_ip="192.200.0"
 ip_range_start=100
@@ -31,7 +50,7 @@ for ((i = ip_range_start; i <= ip_range_end; i++)); do
 done
 
 if [ "$i" -le "$ip_range_end" ]; then
-    # Configure ens18 with static IP
+    # Append ens18 configuration to interfaces_tmp
     echo "
     # Configured by script
     auto ens18
@@ -39,7 +58,7 @@ if [ "$i" -le "$ip_range_end" ]; then
         address $ip
         netmask 255.255.0.0
         gateway 192.200.0.1
-    " >> /etc/network/interfaces
+    " >> /etc/network/interfaces_tmp
     post_status $? "Configured ens18 with IP $ip"
 else
     post_status 1 "No available IP found in range $base_ip.$ip_range_start - $base_ip.$ip_range_end"
@@ -71,6 +90,9 @@ else
     post_status 1 "No available IP found in range $base_ip.$ip_range_start - $base_ip.$ip_range_end"
 fi
 
+# Overwrite /etc/network/interfaces with interfaces_tmp
+cp /etc/network/interfaces_tmp /etc/network/interfaces
+
 # Check the current default route
 current_default_route=$(ip route show default | awk '/default/ {print $3}')
 
@@ -82,3 +104,4 @@ if [ "$current_default_route" != "192.200.0.1" ]; then
     # Set default route to 192.200.0.1
     ip route add default via 192.200.0.1
 fi
+
