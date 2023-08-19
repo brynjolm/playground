@@ -46,35 +46,21 @@ post_status $? "Removing domain and search from /etc/resolv.conf"
 echo "nameserver 192.200.0.1" > /etc/resolv.conf
 post_status $? "Updating /etc/resolv.conf"
 
-#!/bin/bash
-
 # Configure Chrony to use only one NTP server
 echo "server 192.200.0.1 iburst" >> /etc/chrony/chrony.conf
 
-# Enable and start Chrony service
-systemctl enable chronyd.service
-systemctl start chronyd.service
+# Enable and start Chrony service (use the appropriate service name for your system)
+systemctl enable chrony
+systemctl start chrony
 post_status $? "Chrony service"
 
 # Set timezone to Europe/Berlin within chrony.conf
 echo "rtctimerange 0 1 Europe/Berlin" >> /etc/chrony/chrony.conf
 post_status $? "Timezone configuration"
 
-# Uninstall and clean up timedatectl (systemd-timesyncd)
+# Uninstall and clean up systemd-timesyncd
 apt-get purge systemd-timesyncd -y
 post_status $? "Uninstall systemd-timesyncd"
-
-# Define the post_status function
-post_status() {
-    if [ $1 -eq 0 ]; then
-        echo "$2 configured successfully."
-    else
-        echo "Error configuring $2."
-        exit 1
-    fi
-}
-
-# Call the post_status function to handle errors
 
 # Another pause to see if results ok
 sleep 10
