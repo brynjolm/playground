@@ -22,6 +22,8 @@ rm -v /etc/ssh/ssh_host_*
 dpkg-reconfigure openssh-server
 post_status $? "openssh-server configuration"
 
+sleep 5
+
 # Update package list
 apt update
 post_status $? "Package list update"
@@ -35,7 +37,7 @@ apt install -y nano git qemu-guest-agent wget curl samba nfs-kernel-server cifs-
 post_status $? "Package installation"
 
 # Pause to allow NetworkManager to apply its configuration
-sleep 5
+sleep 15
 
 # Remove domain and search sections from /etc/resolv.conf
 sed -i '/^domain/d' /etc/resolv.conf
@@ -68,14 +70,15 @@ post_status $? "Uninstall systemd-timesyncd"
 # Another pause to see if results ok
 sleep 10
 
-# Delete the incorrect default route
-ip route del default via 172.200.0.1 dev ens19
-
-# Add the correct default route for ens18
-ip route add default via 192.200.1.1 dev ens18
-
-# Update the routing table
-ip route flush cache
+# Modify /etc/network/interfaces for static IP on ens19
+echo "
+# Configured by script
+auto ens19
+iface ens19 inet static
+    address 172.200.0.10
+    netmask 255.255.0.0
+    gateway 172.200.0.1
+" >> /etc/network/interfaces
 
 # Reboot the server
 echo "Rebooting the system..."
