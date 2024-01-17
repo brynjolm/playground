@@ -69,3 +69,9 @@ sleep 10
 # Reboot the server
 echo "Rebooting the system..."
 reboot
+
+
+########
+need to edit section too lazy.
+/etc/network/interfaces
+need to add iface [interface] inet6 dhcp/auto (slaac)
