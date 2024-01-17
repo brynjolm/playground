@@ -75,3 +75,8 @@ reboot
 need to edit section too lazy.
 /etc/network/interfaces
 need to add iface [interface] inet6 dhcp/auto (slaac)
+
+change machine id
+rm -f /etc/machine-id /var/lib/dbus/machine-id
+dbus-uuidgen --ensure=/etc/machine-id
+dbus-uuidgen --ensure
